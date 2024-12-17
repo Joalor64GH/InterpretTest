@@ -61,7 +61,7 @@ class Paths {
 		return FlxAtlasFrames.fromSpriteSheetPacker(image(key), file('images/$key.txt'));
 
 	static var externalAssetsTemp:Array<String> = [];
-	static public function getExternalAssets(type:AssetType = FILE):Array<String>
+	static public function getExternalAssets(type:AssetType):Array<String>
 	{
 		var mainDirectory:String = '.';
 		forEachDirectory(mainDirectory, type);
