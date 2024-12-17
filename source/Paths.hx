@@ -6,8 +6,6 @@ import sys.io.File;
 #end
 import flixel.FlxG;
 import flixel.graphics.frames.FlxAtlasFrames;
-import openfl.utils.Assets;
-import openfl.utils.AssetType;
 
 using StringTools;
 
@@ -61,7 +59,7 @@ class Paths {
 		return FlxAtlasFrames.fromSpriteSheetPacker(image(key), file('images/$key.txt'));
 
 	static var externalAssetsTemp:Array<String> = [];
-	static public function getExternalAssets(type:AssetType):Array<String>
+	static public function getExternalAssets(type:AssetType = FILE):Array<String>
 	{
 		var mainDirectory:String = '.';
 		forEachDirectory(mainDirectory, type);
@@ -119,4 +117,10 @@ class Paths {
 	static public function validScriptType(n:String):Bool {
 		return n.endsWith('.hx') || n.endsWith('.hxs') || n.endsWith('.hxc') || n.endsWith('.hscript');
 	}
+}
+
+enum AssetType 
+{
+	FILE;
+	FOLDER;
 }
