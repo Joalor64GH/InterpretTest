@@ -106,7 +106,8 @@ class Paths {
 			var flag0:Bool = validScriptType(i);
 			if ((i.contains('assets/') && validScriptType(i)) || flag0) {
 				var scriptFrom:String = 'assets/';
-				var finalP:String = finalP.replace('./', '');
+				var finalP:String = i.replace(file(scriptFrom), '');
+				finalP = finalP.replace('./', '');
 				finalP = finalP.split('.')[0];
 				containScripts.push(finalP);
 			}
