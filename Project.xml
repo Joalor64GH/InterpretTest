@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="utf-8"?>
+<project>
+
+	<!-- _________________________ Application Settings _________________________ -->
+
+	<app title="HaxeFlixel Template" file="Template" main="Main" version="1.0.0" company="Joalor64" />
+	<app preloader="flixel.system.FlxPreloader" />
+
+	<!-- Minimum without FLX_NO_GAMEPAD: 11.8, without FLX_NO_NATIVE_CURSOR: 11.2 -->
+	<set name="SWF_VERSION" value="11.8" />
+
+	<!-- ____________________________ Window Settings ___________________________ -->
+
+	<!-- All targets -->
+	<window width="1280" height="720" fps="60" background="#000000" hardware="true" vsync="false" />
+
+	<!-- HTML5 -->
+	<window if="html5" resizable="false" />
+
+	<!-- Desktop -->
+	<window if="desktop" orientation="landscape" fullscreen="false" resizable="true" />
+
+	<!-- macOS -->
+	<window if="mac" orientation="auto" fullscreen="false" resizable="true" vsync="false" allow-high-dpi="true" />
+
+	<!-- Mobile -->
+	<window if="mobile" orientation="landscape" fullscreen="true" width="0" height="0" />
+
+	<!-- _____________________________ Path Settings ____________________________ -->
+
+	<set name="BUILD_DIR" value="export/debug" if="debug" />
+	<set name="BUILD_DIR" value="export/release" unless="debug" />
+
+	<source path="source" />
+	<assets path="assets" exclude="*.mp3" unless="web" />
+
+	<!-- _______________________________ Libraries ______________________________ -->
+
+	<!-- Default flixel library -->
+	<haxelib name="flixel" />
+
+	<!-- In case you want to use the addons package -->
+	<haxelib name="flixel-addons" />
+	
+	<!-- In case you want to use the ui package -->
+	<haxelib name="flixel-ui" />
+
+	<!-- In case you want to use the tools package -->
+	<haxelib name="flixel-tools" />
+
+	<!-- ______________________________ Haxedefines _____________________________ -->
+
+	<!-- Optimise inputs, be careful you will get null errors if you don't use conditionals in your game -->
+	<haxedef name="FLX_NO_MOUSE" if="mobile" />
+	<haxedef name="FLX_NO_KEYBOARD" if="mobile" />
+	<haxedef name="FLX_NO_TOUCH" if="desktop" />
+
+	<!-- Disable the Flixel core debugger. Automatically gets set whenever you compile in release mode! -->
+	<haxedef name="FLX_NO_DEBUG" unless="debug" />
+
+	<!-- Enable this for Nape release builds for a serious peformance improvement -->
+	<haxedef name="NAPE_RELEASE_BUILD" unless="debug" />
+
+	<!-- Fix for macros -->
+	<haxeflag name="--macro" value="allowPackage('flash')" />
+	<haxeflag name="--macro" value="include('my.pack')" />
+
+	<!-- Analyzer optimization -->
+	<haxedef name="analyzer-optimize" />
+
+	<!-- This is obvious -->
+	<haxedef name="no-deprecation-warnings" />
+
+	<!-- Pretty error reporting -->
+	<haxedef name="message.reporting" value="pretty" />
+
+	<!-- _________________________________ Custom _______________________________ -->
+
+	<!-- Place custom nodes like icons here (higher priority to override the HaxeFlixel icon) -->
+</project>
