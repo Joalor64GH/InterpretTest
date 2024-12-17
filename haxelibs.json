@@ -17,15 +17,22 @@
       "type": "haxelib"
     },
     {
-      "name": "flixel-ui",
-      "type": "haxelib"
+      "name": "hscript",
+      "type": "haxelib",
+      "version": "2.4.0"
     },
     {
-      "name": "flixel-tools",
-      "type": "haxelib"
+      "name": "interpret",
+      "type": "git",
+      "ref": "master",
+      "url": "https://github.com/jeremyfa/interpret" 
     },
     {
       "name": "hxcpp",
+      "type": "haxelib"
+    },
+    {
+      "name": "hxcpp-debug-server",
       "type": "haxelib"
     }
   ]

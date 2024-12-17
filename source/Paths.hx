@@ -6,6 +6,10 @@ import sys.io.File;
 #end
 import flixel.FlxG;
 import flixel.graphics.frames.FlxAtlasFrames;
+import openfl.utils.Assets;
+import openfl.utils.AssetType;
+
+using StringTools;
 
 class Paths {
 	inline public static final SOUND_EXT = #if !html5 "ogg" #else "mp3" #end;
@@ -24,21 +28,16 @@ class Paths {
 	}
 
 	inline static public function txt(key:String)
-		return file('data/$key.txt');
+		return file('$key.txt');
 
 	inline static public function xml(key:String)
-		return file('data/$key.xml');
+		return file('$key.xml');
 
 	inline static public function json(key:String)
-		return file('data/$key.json');
+		return file('$key.json');
 
-	#if yaml
-	inline static public function yaml(key:String)
-		return file('data/$key.yaml');
-	#end
-
-	inline static public function video(key:String)
-		return file('videos/$key.mp4');
+	inline static public function script(key:String)
+		return file('$key.hx');
 
 	inline static public function sound(key:String)
 		return file('sounds/$key.$SOUND_EXT');
@@ -60,4 +59,64 @@ class Paths {
 
 	inline static public function getPackerAtlas(key:String)
 		return FlxAtlasFrames.fromSpriteSheetPacker(image(key), file('images/$key.txt'));
+
+	static var externalAssetsTemp:Array<String> = [];
+	static public function getExternalAssets(type:AssetType = FILE):Array<String>
+	{
+		var mainDirectory:String = '.';
+		forEachDirectory(mainDirectory, type);
+	    var assetPaths = externalAssetsTemp;
+		externalAssetsTemp = [];
+		return assetPaths;
+	}
+	
+	static public function forEachDirectory(key:String = '', type:AssetType) {
+		#if sys
+		if (FileSystem.exists(key)) {
+			for (file in FileSystem.readDirectory(key))
+			{
+				if (type == FILE) {
+					if (!file.contains('.')) {
+						file = pathFormat(key, file);
+						forEachDirectory(file, type);
+					}
+					file = pathFormat(key, file);
+					externalAssetsTemp.push(file);
+				} else if (!file.contains('.') && type == FOLDER) {
+     	   			file = pathFormat(key, file);
+					forEachDirectory(file, type);
+     	  	 		externalAssetsTemp.push(file);
+				}
+			}
+		}
+		#end
+	}
+
+	static public function pathFormat(path:String, key:String = '')
+	{
+		var cut:String = '';
+    	if (!path.endsWith('/') && !key.startsWith('/'))
+     		cut = '/';
+     	return path + cut + key;
+	}
+
+	static public function findScripts():Array<String>
+	{
+		var containScripts:Array<String> = [];
+		for (i in getExternalAssets(FILE))
+		{
+			var flag0:Bool = validScriptType(i);
+			if ((i.contains('assets/') && validScriptType(i)) || flag0) {
+				var scriptFrom:String = 'assets/';
+				var finalP:String = finalP.replace('./', '');
+				finalP = finalP.split('.')[0];
+				containScripts.push(finalP);
+			}
+		}
+		return containScripts;
+	}
+
+	static public function validScriptType(n:String):Bool {
+		return n.endsWith('.hx') || n.endsWith('.hxs') || n.endsWith('.hxc') || n.endsWith('.hscript');
+	}
 }
