@@ -17,15 +17,14 @@
       "type": "haxelib"
     },
     {
-      "name": "hscript",
-      "type": "haxelib",
-      "version": "2.4.0"
-    },
-    {
       "name": "interpret",
       "type": "git",
       "ref": "master",
       "url": "https://github.com/jeremyfa/interpret" 
+    },
+    {
+      "name": "hscript",
+      "type": "haxelib"
     },
     {
       "name": "hxcpp",
