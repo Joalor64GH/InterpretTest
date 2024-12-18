@@ -127,10 +127,10 @@ class Paths {
 		return file('$key.json');
 
 	inline static public function script(key:String) {
-		var extension = '.hxs';
+		var extension = '.hx';
 		
 		for (ext in HSCRIPT_EXT)
-			extension = (exists(file(key + ext))) ? ext : extension;
+			extension = (FileSystem.exists(file(key + ext))) ? ext : extension;
 		
 		return file(key + extension);
 	}
