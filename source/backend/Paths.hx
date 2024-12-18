@@ -1,17 +1,108 @@
 package backend;
 
+#if cpp
+import cpp.vm.Gc;
+#elseif hl
+import hl.Gc;
+#elseif neko
+import neko.vm.Gc;
+#end
+
 #if sys
 import sys.FileSystem;
 import sys.io.File;
 #end
+
+import haxe.io.Path;
+
 import flixel.FlxG;
+import flixel.graphics.FlxGraphic;
 import flixel.graphics.frames.FlxAtlasFrames;
+import flixel.system.FlxAssets;
+
+import openfl.Assets;
 
 using StringTools;
+using haxe.io.Path;
 
+enum SpriteSheetType {
+	ASEPRITE;
+	PACKER;
+	SPARROW;
+	TEXTURE_PATCHER_JSON;
+	TEXTURE_PATCHER_XML;
+}
+
+@:access(openfl.display.BitmapData)
 class Paths {
-	inline public static final SOUND_EXT = #if !html5 "ogg" #else "mp3" #end;
+	public static var SOUND_EXT:Array<String> = ['.ogg', '.wav', '.mp3', '.flac'];
+	public static var HSCRIPT_EXT:Array<String> = ['.hx', '.hxs', '.hxc', '.hscript'];
+
 	inline public static final DEFAULT_FOLDER:String = 'assets';
+
+	public static var currentTrackedAssets:Map<String, FlxGraphic> = [];
+	public static var currentTrackedSounds:Map<String, Sound> = [];
+	public static var localTrackedAssets:Array<String> = [];
+
+	@:noCompletion private inline static function _gc(major:Bool) {
+		#if (cpp || neko)
+		Gc.run(major);
+		#elseif hl
+		Gc.major();
+		#end
+	}
+
+	@:noCompletion public inline static function compress() {
+		#if cpp
+		Gc.compact();
+		#elseif hl
+		Gc.major();
+		#elseif neko
+		Gc.run(true);
+		#end
+	}
+
+	public inline static function gc(major:Bool = false, repeat:Int = 1) {
+		while (repeat-- > 0)
+			_gc(major);
+	}
+
+	public static function clearUnusedMemory() {
+		for (key in currentTrackedAssets.keys()) {
+			if (!localTrackedAssets.contains(key)) {
+				destroyGraphic(currentTrackedAssets.get(key));
+				currentTrackedAssets.remove(key);
+			}
+		}
+
+		compress();
+		gc(true);
+	}
+
+	@:access(flixel.system.frontEnds.BitmapFrontEnd._cache)
+	public static function clearStoredMemory() {
+		for (key in FlxG.bitmap._cache.keys()) {
+			if (!currentTrackedAssets.exists(key))
+				destroyGraphic(FlxG.bitmap.get(key));
+		}
+
+		for (key => asset in currentTrackedSounds) {
+			if (!localTrackedAssets.contains(key) && asset != null) {
+				Assets.cache.clear(key);
+				currentTrackedSounds.remove(key);
+			}
+		}
+
+		localTrackedAssets = [];
+		gc(true);
+		compress();
+	}
+
+	inline static function destroyGraphic(graphic:FlxGraphic) {
+		if (graphic != null && graphic.bitmap != null && graphic.bitmap.__texture != null)
+			graphic.bitmap.__texture.dispose();
+		FlxG.bitmap.remove(graphic);
+	}
 
 	static public function getPath(folder:Null<String>, file:String) {
 		if (folder == null)
@@ -34,29 +125,92 @@ class Paths {
 	inline static public function json(key:String)
 		return file('$key.json');
 
-	inline static public function script(key:String)
-		return file('$key.hx');
+	inline static public function script(key:String) {
+		var extension = '.hxs';
+		
+		for (ext in HSCRIPT_EXT)
+			extension = (exists(file(key + ext))) ? ext : extension;
+		
+		return file(key + extension);
+	}
 
-	inline static public function sound(key:String)
-		return file('sounds/$key.$SOUND_EXT');
+	static public function sound(key:String, ?cache:Bool = true):Sound
+		return returnSound('sounds/$key', cache);
 
-	inline static public function soundRandom(key:String, min:Int, max:Int)
-		return file('sounds/$key${FlxG.random.int(min, max)}.$SOUND_EXT');
+	inline static public function music(key:String, ?cache:Bool = true):Sound
+		return returnSound('music/$key', cache);
 
-	inline static public function music(key:String)
-		return file('music/$key.$SOUND_EXT');
+	inline static public function font(key:String) {
+		var path:String = file('fonts/$key');
 
-	inline static public function image(key:String)
-		return file('images/$key.png');
+		if (path.extension() == '') {
+			if (exists(path.withExtension("ttf")))
+				path = path.withExtension("ttf");
+			else if (exists(path.withExtension("otf")))
+				path = path.withExtension("otf");
+		}
 
-	inline static public function font(key:String)
-		return file('fonts/$key');
+		return path;
+	}
 
-	inline static public function getSparrowAtlas(key:String)
-		return FlxAtlasFrames.fromSparrow(image(key), file('images/$key.xml'));
+	inline static public function image(key:String, ?cache:Bool = true):FlxGraphic
+		return returnGraphic('images/$key', cache);
 
-	inline static public function getPackerAtlas(key:String)
-		return FlxAtlasFrames.fromSpriteSheetPacker(image(key), file('images/$key.txt'));
+	public static inline function spritesheet(key:String, ?cache:Bool = true, ?type:SpriteSheetType):FlxAtlasFrames {
+		if (type == null)
+			type = SPARROW;
+
+		return switch (type) {
+			case ASEPRITE:
+				FlxAtlasFrames.fromAseprite(image(key, cache), json('images/$key'));
+			case PACKER:
+				FlxAtlasFrames.fromSpriteSheetPacker(image(key, cache), txt('images/$key'));
+			case SPARROW:
+				FlxAtlasFrames.fromSparrow(image(key, cache), xml('images/$key'));
+			case TEXTURE_PATCHER_JSON:
+				FlxAtlasFrames.fromTexturePackerJson(image(key, cache), json('images/$key'));
+			case TEXTURE_PATCHER_XML:
+				FlxAtlasFrames.fromTexturePackerXml(image(key, cache), xml('images/$key'));
+			default:
+				FlxAtlasFrames.fromSparrow(image('errorSparrow', cache), xml('images/errorSparrow'));
+		}
+	}
+
+	public static function returnGraphic(key:String, ?cache:Bool = true):FlxGraphic {
+		var path:String = file('$key.png');
+		if (Assets.exists(path, IMAGE)) {
+			if (!currentTrackedAssets.exists(path)) {
+				var graphic:FlxGraphic = FlxGraphic.fromBitmapData(Assets.getBitmapData(path), false, path, cache);
+				graphic.persist = true;
+				currentTrackedAssets.set(path, graphic);
+			}
+
+			localTrackedAssets.push(path);
+			return currentTrackedAssets.get(path);
+		}
+
+		trace('oops! graphic $key returned null');
+		return null;
+	}
+
+	public static function returnSound(key:String, ?cache:Bool = true, ?beepOnNull:Bool = true):Sound {
+		for (i in SOUND_EXT) {
+			if (Assets.exists(file(key + i), SOUND)) {
+				var path:String = file(key + i);
+				if (!currentTrackedSounds.exists(path))
+					currentTrackedSounds.set(path, Assets.getSound(path, cache));
+
+				localTrackedAssets.push(path);
+				return currentTrackedSounds.get(path);
+			} else if (beepOnNull) {
+				trace('oops! sound $key returned null');
+				return FlxAssets.getSound('flixel/sounds/beep');
+			}
+		}
+
+		trace('oops! sound $key returned null');
+		return null;
+	}
 
 	static public function validScriptType(n:String):Bool {
 		return n.endsWith('.hx') || n.endsWith('.hxs') || n.endsWith('.hxc') || n.endsWith('.hscript');
