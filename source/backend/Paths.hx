@@ -145,9 +145,9 @@ class Paths {
 		var path:String = file('fonts/$key');
 
 		if (path.extension() == '') {
-			if (exists(path.withExtension("ttf")))
+			if (FileSystem.exists(path.withExtension("ttf")))
 				path = path.withExtension("ttf");
-			else if (exists(path.withExtension("otf")))
+			else if (FileSystem.exists(path.withExtension("otf")))
 				path = path.withExtension("otf");
 		}
 
