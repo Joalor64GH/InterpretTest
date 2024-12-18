@@ -3,11 +3,7 @@
 
 	<!-- _________________________ Application Settings _________________________ -->
 
-	<app title="HaxeFlixel Template" file="Template" main="Main" version="1.0.0" company="Joalor64" />
-	<app preloader="flixel.system.FlxPreloader" />
-
-	<!-- Minimum without FLX_NO_GAMEPAD: 11.8, without FLX_NO_NATIVE_CURSOR: 11.2 -->
-	<set name="SWF_VERSION" value="11.8" />
+	<app title="HaxeFlixel Template" file="Template" main="backend.Main" version="1.0.0" company="Joalor64" />
 
 	<!-- ____________________________ Window Settings ___________________________ -->
 

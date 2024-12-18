@@ -55,8 +55,8 @@ class HScript
 		env.addModule('openfl.Lib', DynamicModule.fromStatic(openfl.Lib));
 		env.addModule('sys.FileSystem', DynamicModule.fromStatic(sys.FileSystem));
 		env.addModule('sys.io.File', DynamicModule.fromStatic(sys.io.File));
-		env.addModule('Paths', DynamicModule.fromStatic(Paths));
-		env.addModule('Main', DynamicModule.fromStatic(Main));
+		env.addModule('backend.Paths', DynamicModule.fromStatic(backend.Paths));
+		env.addModule('backend.Main', DynamicModule.fromStatic(backend.Main));
 		env.addModule('state.PlayState', DynamicModule.fromStatic(state.PlayState));
 		env.addModule('script.HScript', DynamicModule.fromStatic(script.HScript));
 

@@ -2,6 +2,8 @@ package script;
 
 import script.HScript;
 
+using StringTools;
+
 class ScriptHandler {
     public var scripts:Array<HScript> = [];
     public var allowPaths:Array<String>;

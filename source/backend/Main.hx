@@ -1,4 +1,4 @@
-package;
+package backend;
 
 class Main extends openfl.display.Sprite {
 	public final config:Dynamic = {
