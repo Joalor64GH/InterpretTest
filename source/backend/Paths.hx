@@ -58,70 +58,7 @@ class Paths {
 	inline static public function getPackerAtlas(key:String)
 		return FlxAtlasFrames.fromSpriteSheetPacker(image(key), file('images/$key.txt'));
 
-	static var externalAssetsTemp:Array<String> = [];
-	static public function getExternalAssets(type:AssetType = FILE):Array<String>
-	{
-		var mainDirectory:String = '.';
-		forEachDirectory(mainDirectory, type);
-	    var assetPaths = externalAssetsTemp;
-		externalAssetsTemp = [];
-		return assetPaths;
-	}
-	
-	static public function forEachDirectory(key:String = '', type:AssetType) {
-		#if sys
-		if (FileSystem.exists(key)) {
-			for (file in FileSystem.readDirectory(key))
-			{
-				if (type == FILE) {
-					if (!file.contains('.')) {
-						file = pathFormat(key, file);
-						forEachDirectory(file, type);
-					}
-					file = pathFormat(key, file);
-					externalAssetsTemp.push(file);
-				} else if (!file.contains('.') && type == FOLDER) {
-     	   			file = pathFormat(key, file);
-					forEachDirectory(file, type);
-     	  	 		externalAssetsTemp.push(file);
-				}
-			}
-		}
-		#end
-	}
-
-	static public function pathFormat(path:String, key:String = '')
-	{
-		var cut:String = '';
-    	if (!path.endsWith('/') && !key.startsWith('/'))
-     		cut = '/';
-     	return path + cut + key;
-	}
-
-	static public function findScripts():Array<String>
-	{
-		var containScripts:Array<String> = [];
-		for (i in getExternalAssets(FILE))
-		{
-			var flag0:Bool = validScriptType(i);
-			if ((i.contains('assets/') && validScriptType(i)) || flag0) {
-				var scriptFrom:String = 'assets/';
-				var finalP:String = i.replace(file(scriptFrom), '');
-				finalP = finalP.replace('./', '');
-				finalP = finalP.split('.')[0];
-				containScripts.push(finalP);
-			}
-		}
-		return containScripts;
-	}
-
 	static public function validScriptType(n:String):Bool {
 		return n.endsWith('.hx') || n.endsWith('.hxs') || n.endsWith('.hxc') || n.endsWith('.hscript');
 	}
-}
-
-enum AssetType 
-{
-	FILE;
-	FOLDER;
 }

@@ -66,8 +66,8 @@ class HScript
 
 	public function loadModule(path:String)
 	{
-		var pArr = path.split('/'); /** WITHOUT POSTFIX IS IMPORTANT! **/
-		var expr:DynamicModule = DynamicModule.fromString(env, pArr[pArr.length - 1], sys.io.File.getContent(Paths.script(path)));
+		var pArr = path.split('/');
+		var expr:DynamicModule = DynamicModule.fromString(env, pArr[pArr.length - 1], sys.io.File.getContent(path));
 		packag3 = expr.pack;
 		env.addModule(packag3, expr);
 		env.link();
