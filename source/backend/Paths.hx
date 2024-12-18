@@ -21,6 +21,7 @@ import flixel.graphics.frames.FlxAtlasFrames;
 import flixel.system.FlxAssets;
 
 import openfl.Assets;
+import openfl.media.Sound;
 
 using StringTools;
 using haxe.io.Path;
