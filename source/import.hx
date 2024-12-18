@@ -1,4 +1,4 @@
 #if !macro
-import Paths;
+import backend.Paths;
 using StringTools;
 #end
